@@ -1,226 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <style type="text/css">
-        html, body {
-            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .home {
-            padding: 5rem 2rem;
-            text-align: center;
-        }
-        .home__title {
-            font-size: 6rem;
-            line-height: 1.15;
-        }
-        .home__title__link {
-            color: #06c755;
-            text-decoration: none;
-        }
-        .home__title__link:hover {
-            text-decoration: underline;
-        }
-        .home__badges {
-            align-items: center;
-            justify-content: center;
-            display: flex;
-            flex-wrap: nowrap;
-            overflow: hidden;
-            margin-bottom: 6rem;
-        }
-        .home__badges__badge:first-child {
-            border-top-left-radius: 2px;
-            border-bottom-left-radius: 2px;
-        }
-        .home__badges__badge:last-child {
-            border-top-right-radius: 2px;
-            border-bottom-right-radius: 2px;
-        }
-        .home__badges__badge {
-            display: inline-block;
-            padding: 0.3em 0.4em;
-            font-size: 0.75rem;
-            font-weight: 700;
-            line-height: 1;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-        }
-        .badge--primary {
-            color: #353a40;
-            border: 1px solid #353a40;
-            background-color: transparent;
-            padding-top: calc(0.3em - 1px);
-            padding-bottom: calc(0.3em - 1px);
-        }
-        .badge--secondary {
-            color: #fff;
-            background-color: #353a40;
-        }
-        .home__buttons {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .home__buttons__button {
-            min-width: 250px;
-            cursor: pointer;
-            display: inline-block;
-            font-weight: 400;
-            text-align: center;
-            vertical-align: middle;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9375rem;
-            line-height: 1.5;
-            border-radius: 2px;
-            text-decoration: none;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-        .button--primary {
-            color: #fff;
-            background-color: #00B900;
-            border-color: #00B900;
-        }
-        .button--primary:hover {
-            color: #fff;
-            background-color: #009300;
-            border-color: #008600;
-        }
-        .button--secondary {
-            color: #fff;
-            background-color: #353a40;
-            border-color: #353a40;
-        }
-        .button--secondary:hover {
-            color: #fff;
-            background-color: #24272b;
-            border-color: #1e2124;
-        }
-        .button--tertiary {
-            background-color: transparent;
-            background-image: none;
-            color: #353a40;
-            border-color: #353a40;
-        }
-        .button--tertiary:hover {
-            color: #353a40;
-            background-color: rgba(53,58,64,0.1);
-            border-color: #353a40;
-        }
-        @media screen and (max-width: 600px) {
-            html {
-                font-size: 12px;
-            }
-            .home__title {
-                font-size: 4rem;
-                line-height: 1.15;
-            }
-            .home__buttons__button {
-                font-size: 1.5rem;
-            }
-        }
-        @media screen and (max-width: 930px) {
-            .home__buttons {
-                flex-direction: column;
-            }
-        }
-      </style>
-    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
-    <script>
-        function initializeLiff(myLiffId) {
-          liff
-            .init({
-              liffId: myLiffId
-            })
-            .then(() => {
-              // LIFF initialization succeeded
-              console.log('LIFF initialized');
-              getUserProfile();
-            })
-            .catch((err) => {
-              // LIFF initialization failed
-              console.error('LIFF initialization failed', err);
-            });
-        }
-  
-        function getUserProfile() {
-          liff.getProfile()
-            .then(profile => {
-              const userId = profile.userId;
-              document.getElementById('userId').textContent = `ユーザーID: ${userId}`;
-              const displayName = profile.displayName;
-              document.getElementById('displayName').textContent = `${displayName} さん`;
-            })
-            .catch((err) => {
-              console.error('プロフィール情報の取得に失敗しました', err);
-            });
-        }
-        document.addEventListener('DOMContentLoaded', function () {
-          const myLiffId = '2008136389-lAjyQvJK'; // ここにあなたのLIFF IDを入力してください
-          initializeLiff(myLiffId);
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini App Survey</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto; padding: 16px; }
+    .card { max-width: 640px; margin: 0 auto; }
+    .row { margin: 12px 0; }
+    button { padding: 12px 16px; border-radius: 12px; }
+    label.opt { display:inline-block; border:1px solid #ccc; border-radius:12px; padding:8px 12px; margin:4px; cursor:pointer; }
+    label.opt input{ display:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>利用満足度アンケート</h1>
+    <p id="hello"></p>
+
+    <form id="form">
+      <div class="row">
+        <div>Q1. 満足度（1〜5）</div>
+        <div id="q1"></div>
+      </div>
+
+      <div class="row">
+        <div>Q2. よく使う機能（複数選択可）</div>
+        <label class="opt"><input type="checkbox" name="features" value="友だち追加" />友だち追加</label>
+        <label class="opt"><input type="checkbox" name="features" value="クーポン" />クーポン</label>
+        <label class="opt"><input type="checkbox" name="features" value="予約" />予約</label>
+        <label class="opt"><input type="checkbox" name="features" value="決済" />決済</label>
+        <label class="opt"><input type="checkbox" name="features" value="その他" />その他</label>
+      </div>
+
+      <div class="row">
+        <div>Q3. 自由記述</div>
+        <textarea name="comment" rows="4" style="width:100%"></textarea>
+      </div>
+
+      <button type="submit">送信する</button>
+      <div id="status" class="row"></div>
+    </form>
+  </div>
+
+  <script>
+    const LIFF_ID = "YOUR_LIFF_ID_HERE";
+
+    const elQ1 = document.getElementById("q1");
+    elQ1.innerHTML = [1,2,3,4,5].map(n =>
+      `<label class="opt"><input type="radio" name="satisfaction" value="${n}"/>${n}</label>`
+    ).join("");
+
+    async function main(){
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isLoggedIn()) { liff.login(); return; }
+      const prof = await liff.getProfile();
+      document.getElementById("hello").textContent = `こんにちは、${prof.displayName} さん`;
+
+      document.getElementById("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const satisfaction = fd.get("satisfaction");
+        if (!satisfaction) { alert("満足度を選択してください"); return; }
+        const features = fd.getAll("features");
+        const comment = fd.get("comment") || "";
+        const idToken = liff.getIDToken();
+
+        const res = await fetch("/api/surveys", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            idToken,
+            answers: { satisfaction, features, comment },
+            liffUserId: prof.userId,
+            displayName: prof.displayName,
+          }),
         });
-      </script>
-    <title>LIFF Starter</title>
-  </head>
-  <body>
-    <div class="home">
-      <h1 class="home__title">
-       こんにちは <br /><a
-          class="home__title__link"
-          href="https://developers.line.biz/en/docs/liff/overview/"
-          id="displayName"
-          >表示名を取得中...</a
-        >
-      </h1>
-      <div id="userId" class="user-id">ユーザーIDを取得中...</div>
-      <div class="home__badges">
-        <span class="home__badges__badge badge--primary"> LIFF Starter </span>
-        <span class="home__badges__badge badge--secondary"> vanilla </span>
-        <span class="home__badges__badge badge--tertiary"> 0.1.0 </span>
-        <a
-          href="https://github.com/line/line-liff-v2-starter"
-          target="_blank"
-          rel="noreferrer"
-          class="home__badges__badge badge--secondary"
-        >
-          GitHub
-        </a>
-      </div>
-      <div class="home__buttons">
-        <a
-          href="https://developers.line.biz/en/docs/liff/developing-liff-apps/"
-          target="_blank"
-          rel="noreferrer"
-          class="home__buttons__button button--primary"
-        >
-          LIFF Documentation
-        </a>
-        <a
-          href="https://liff-playground.netlify.app/"
-          target="_blank"
-          rel="noreferrer"
-          class="home__buttons__button button--tertiary"
-        >
-          LIFF Playground
-        </a>
-        <a
-          href="https://developers.line.biz/console/"
-          target="_blank"
-          rel="noreferrer"
-          class="home__buttons__button button--secondary"
-        >
-          LINE Developers Console
-        </a>
-      </div>
-    </div>
-  </body>
+        const status = document.getElementById("status");
+        if (res.ok) {
+          status.textContent = "ご回答ありがとうございました！";
+          if (liff.isInClient()) setTimeout(() => liff.closeWindow(), 800);
+        } else {
+          status.textContent = "送信に失敗しました";
+        }
+      });
+    }
+    main().catch(err => alert(err?.message || err));
+  </script>
+</body>
 </html>
