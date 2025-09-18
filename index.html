@@ -1,92 +1,54 @@
 <!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mini App Survey</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto; padding: 16px; }
-    .card { max-width: 640px; margin: 0 auto; }
-    .row { margin: 12px 0; }
-    button { padding: 12px 16px; border-radius: 12px; }
-    label.opt { display:inline-block; border:1px solid #ccc; border-radius:12px; padding:8px 12px; margin:4px; cursor:pointer; }
-    label.opt input{ display:none; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>利用満足度アンケート</h1>
-    <p id="hello"></p>
+const LIFF_ID = "YOUR_LIFF_ID_HERE";
 
-    <form id="form">
-      <div class="row">
-        <div>Q1. 満足度（1〜5）</div>
-        <div id="q1"></div>
-      </div>
 
-      <div class="row">
-        <div>Q2. よく使う機能（複数選択可）</div>
-        <label class="opt"><input type="checkbox" name="features" value="友だち追加" />友だち追加</label>
-        <label class="opt"><input type="checkbox" name="features" value="クーポン" />クーポン</label>
-        <label class="opt"><input type="checkbox" name="features" value="予約" />予約</label>
-        <label class="opt"><input type="checkbox" name="features" value="決済" />決済</label>
-        <label class="opt"><input type="checkbox" name="features" value="その他" />その他</label>
-      </div>
+// 今日の日付を既定値に
+const elDate = document.getElementById("date");
+elDate.value = new Date().toISOString().slice(0, 10);
 
-      <div class="row">
-        <div>Q3. 自由記述</div>
-        <textarea name="comment" rows="4" style="width:100%"></textarea>
-      </div>
 
-      <button type="submit">送信する</button>
-      <div id="status" class="row"></div>
-    </form>
-  </div>
+async function main(){
+await liff.init({ liffId: LIFF_ID });
+if (!liff.isLoggedIn()) { liff.login(); return; }
 
-  <script>
-    const LIFF_ID = "YOUR_LIFF_ID_HERE";
 
-    const elQ1 = document.getElementById("q1");
-    elQ1.innerHTML = [1,2,3,4,5].map(n =>
-      `<label class="opt"><input type="radio" name="satisfaction" value="${n}"/>${n}</label>`
-    ).join("");
+const prof = await liff.getProfile();
+document.getElementById("hello").textContent = `こんにちは、${prof.displayName} さん`;
 
-    async function main(){
-      await liff.init({ liffId: LIFF_ID });
-      if (!liff.isLoggedIn()) { liff.login(); return; }
-      const prof = await liff.getProfile();
-      document.getElementById("hello").textContent = `こんにちは、${prof.displayName} さん`;
 
-      document.getElementById("form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.currentTarget);
-        const satisfaction = fd.get("satisfaction");
-        if (!satisfaction) { alert("満足度を選択してください"); return; }
-        const features = fd.getAll("features");
-        const comment = fd.get("comment") || "";
-        const idToken = liff.getIDToken();
+document.getElementById("form").addEventListener("submit", async (e) => {
+e.preventDefault();
+const fd = new FormData(e.currentTarget);
+const date = fd.get("date");
+const statusVal = fd.get("status");
+const note = fd.get("note") || "";
+if (!date || !statusVal) { alert("日付とステータスを入力してください"); return; }
 
-        const res = await fetch("/api/surveys", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            idToken,
-            answers: { satisfaction, features, comment },
-            liffUserId: prof.userId,
-            displayName: prof.displayName,
-          }),
-        });
-        const status = document.getElementById("status");
-        if (res.ok) {
-          status.textContent = "ご回答ありがとうございました！";
-          if (liff.isInClient()) setTimeout(() => liff.closeWindow(), 800);
-        } else {
-          status.textContent = "送信に失敗しました";
-        }
-      });
-    }
-    main().catch(err => alert(err?.message || err));
-  </script>
+
+const idToken = liff.getIDToken();
+
+
+const res = await fetch("/api/attendance", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+idToken,
+payload: { date, status: statusVal, note }
+}),
+});
+
+
+const status = document.getElementById("status");
+if (res.ok) {
+status.textContent = "出席連絡を受け付けました。ありがとうございました！";
+if (liff.isInClient()) setTimeout(() => liff.closeWindow(), 800);
+} else {
+const t = await res.text().catch(()=> "");
+status.textContent = "送信に失敗しました " + t;
+}
+});
+}
+main().catch(err => alert(err?.message || err));
+</script>
 </body>
 </html>
